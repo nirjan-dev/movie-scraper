@@ -4,23 +4,27 @@
     "type": "module",
     "description": "This is an example of a Crawlee project.",
     "dependencies": {
+        "@hono/node-server": "^1.14.2",
         "crawlee": "^3.0.0",
+        "dotenv": "^16.5.0",
+        "hono": "^4.7.10",
         "playwright": "*"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
-        "tsx": "^4.4.0",
-        "typescript": "~5.8.0",
-        "@types/node": "^22.0.0"
+        "@types/node": "^22.0.0",
+        "tsx": "^4.19.4",
+        "typescript": "~5.8.0"
     },
     "scripts": {
         "start": "npm run start:dev",
-        "start:prod": "node dist/main.js",
-        "start:dev": "tsx src/main.ts",
+        "start:prod": "node dist/index.js",
+        "start:dev": "tsx watch src/index.ts",
         "build": "tsc",
         "test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1",
         "postinstall": "npx crawlee install-playwright-browsers"
     },
     "author": "It's not you it's me",
-    "license": "ISC"
+    "license": "ISC",
+    "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
 }
