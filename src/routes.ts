@@ -1,4 +1,5 @@
 import { createPlaywrightRouter, Dataset, KeyValueStore } from "crawlee";
+import { storage } from "./storage.js";
 
 export const router = createPlaywrightRouter();
 
@@ -19,8 +20,6 @@ router.addDefaultHandler(async ({ log, parseWithCheerio }) => {
     log.info("No movies found");
     return;
   }
-
-  const store = await KeyValueStore.open("movies");
 
   const moviesFound: Movie[] = [];
 
@@ -46,9 +45,9 @@ router.addDefaultHandler(async ({ log, parseWithCheerio }) => {
 
   moviesFound.forEach(async (movie) => {
     const movieHash = getHashFromMovieTitle(movie.title);
-    const doesMovieExistInStore = await store.recordExists(movieHash);
+    const doesMovieExistInStore = await storage.getItem(movieHash);
     if (!doesMovieExistInStore) {
-      await store.setValue(movieHash, movie);
+      await storage.setItem(movieHash, movie);
       await sendNotification(movie);
     }
   });
