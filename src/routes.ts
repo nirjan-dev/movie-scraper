@@ -1,14 +1,9 @@
 import { createPlaywrightRouter, Dataset, KeyValueStore } from "crawlee";
-import { storage } from "./storage.js";
+import { addMovieToStorage, isMovieInStorage, Movie } from "./lib/movie.js";
+import { sendNotification } from "./lib/notifications.js";
 
 export const router = createPlaywrightRouter();
 
-interface Movie {
-  title: string;
-  poster: string | undefined;
-  date: string;
-  tags: string;
-}
 router.addDefaultHandler(async ({ log, parseWithCheerio }) => {
   log.info(`enqueueing new URLs`);
   const $ = await parseWithCheerio();
@@ -44,58 +39,11 @@ router.addDefaultHandler(async ({ log, parseWithCheerio }) => {
   });
 
   moviesFound.forEach(async (movie) => {
-    const movieHash = getHashFromMovieTitle(movie.title);
-    const doesMovieExistInStore = await storage.getItem(movieHash);
+    const doesMovieExistInStore = await isMovieInStorage(movie);
     if (!doesMovieExistInStore) {
-      await storage.setItem(movieHash, movie);
+      await addMovieToStorage(movie);
       await sendNotification(movie);
+      log.info("Movie added to storage " + movie.title);
     }
   });
 });
-
-function getHashFromMovieTitle(title: string) {
-  return title
-    .split("")
-    .reduce((hash, char) => {
-      return ((hash << 5) - hash + char.charCodeAt(0)) | 0;
-    }, 0)
-    .toString(36);
-}
-
-async function sendNotification(movie: Movie) {
-  const message = `New movie found: ${movie.title} - ${movie.date}`;
-  await postToDiscord(`
-      ## New Movie Found
-
-      - **Title:** ${movie.title}
-      - **Date:** ${movie.date}
-      - **Tags:** ${movie.tags} 
-      - [Poster](${movie.poster})
-      - [Website](https://www.qfxcinemas.com/upcoming)
-    `);
-}
-
-async function postToDiscord(message: string) {
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  if (!webhookUrl) {
-    console.log("DISCORD_WEBHOOK_URL not set");
-    return;
-  }
-
-  const data = {
-    content: message,
-  };
-
-  try {
-    await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    console.log("Message sent to Discord");
-  } catch (error) {
-    console.error("Error sending message to Discord:", error);
-  }
-}
