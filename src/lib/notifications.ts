@@ -6,7 +6,7 @@ export async function sendNotification(movie: Movie) {
 
       - **Title:** ${movie.title}
       - **Date:** ${movie.date}
-      - **Tags:** ${movie.tags} 
+      - **Tags:** ${movie.tags}
       - [Poster](${movie.poster})
       - [Website](https://www.qfxcinemas.com/upcoming)
     `);
@@ -14,6 +14,13 @@ export async function sendNotification(movie: Movie) {
 
 export async function postToDiscord(message: string) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  const enableNotifications = process.env.ENABLE_NOTIFICATIONS === "true";
+
+  if (!enableNotifications){
+    console.log("Notifications are disabled");
+    return;
+  }
+
   if (!webhookUrl) {
     console.log("DISCORD_WEBHOOK_URL not set");
     return;

@@ -18,7 +18,7 @@ FROM base AS build
 
 # Install node modules
 COPY --chown=myuser package-lock.json package.json ./
-RUN npm ci
+RUN npm install --include=dev --audit=false
 
 # Copy application code
 COPY --chown=myuser . .
@@ -39,6 +39,6 @@ COPY --from=build --chown=myuser /app /app
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
 
-User myuser
+USER node
 
 CMD [ "npm", "run", "start:prod" ]

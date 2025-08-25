@@ -1,0 +1,12 @@
+services:
+  movie-scraper:
+    build: .
+    ports:
+      - "8088:3000"
+    volumes:
+      - ./storage:/app/storage
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    restart: always
